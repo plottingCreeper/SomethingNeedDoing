@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-    - master
+    - build
 
 env:
   PUBLIC_NAME: Something Need Doing
