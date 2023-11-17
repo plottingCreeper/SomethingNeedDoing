@@ -69,6 +69,8 @@ internal static class MacroParser
             "/requirestats" => RequireStatsCommand.Parse(line),
             "/runmacro" => RunMacroCommand.Parse(line),
             "/send" => SendCommand.Parse(line),
+            "/hold" => HoldCommand.Parse(line),
+            "/release" => ReleaseCommand.Parse(line),
             "/target" when Service.Configuration.UseSNDTargeting => TargetCommand.Parse(line),
             "/waitaddon" => WaitAddonCommand.Parse(line),
             "/wait" => WaitCommand.Parse(line),

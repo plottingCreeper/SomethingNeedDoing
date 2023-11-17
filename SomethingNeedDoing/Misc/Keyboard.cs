@@ -56,6 +56,50 @@ internal static class Keyboard
         }
     }
 
+    public static void Hold(VirtualKey key) => Hold(key, null);
+
+    public static void Hold(VirtualKey key, IEnumerable<VirtualKey>? mods)
+    {
+        const int WM_KEYDOWN = 0x100;
+
+        if (key != 0)
+        {
+            //var hWnd = handle ??= Process.GetCurrentProcess().MainWindowHandle;
+            if (WindowFunctions.TryFindGameWindow(out var hWnd))
+            {
+                if (mods != null)
+                {
+                    foreach (var mod in mods)
+                        _ = SendMessage(hWnd, WM_KEYDOWN, (IntPtr)mod, IntPtr.Zero);
+                }
+
+                _ = SendMessage(hWnd, WM_KEYDOWN, (IntPtr)key, IntPtr.Zero);
+            }
+        }
+    }
+
+    public static void Release (VirtualKey key) => Release(key, null);
+
+    public static void Release(VirtualKey key, IEnumerable<VirtualKey>? mods)
+    {
+        const int WM_KEYUP = 0x101;
+
+        if (key != 0)
+        {
+            //var hWnd = handle ??= Process.GetCurrentProcess().MainWindowHandle;
+            if (WindowFunctions.TryFindGameWindow(out var hWnd))
+            {
+                _ = SendMessage(hWnd, WM_KEYUP, (IntPtr)key, IntPtr.Zero);
+
+                if (mods != null)
+                {
+                    foreach (var mod in mods)
+                        _ = SendMessage(hWnd, WM_KEYUP, (IntPtr)mod, IntPtr.Zero);
+                }
+            }
+        }
+    }
+
     [DllImport("user32.dll")]
     private static extern int SendMessage(IntPtr hWnd, int wMsg, IntPtr wParam, IntPtr lParam);
 }

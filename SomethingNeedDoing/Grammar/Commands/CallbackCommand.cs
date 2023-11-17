@@ -15,7 +15,7 @@
 //internal class CallbackCommand : MacroCommand
 //{
 //    private static readonly Regex Regex = new(@"^/callback\s+(?<name>.*?)\s*$", RegexOptions.Compiled);
-//    private AtkUnitBase addon;
+//    private AtkUnitBase* addon;
 //    private bool updateState;
 //    private List<object> valueArgs = new();
 
@@ -37,7 +37,7 @@
 
 //    public static CallbackCommand Parse(List<string> args)
 //    {
-        
+
 //        var valueArgs = new List<object>();
 
 //        var current = "";
@@ -81,14 +81,15 @@
 //            Svc.Log.Error("Error: Unclosed quotes.");
 //        }
 
-//        return new CallbackCommand(text);
+//        return new CallbackCommand(args);
 //    }
 
-//    /// <inheritdoc/>
 //    public async override Task Execute(ActiveMacro macro, CancellationToken token)
 //    {
-//        Callback.Fire(IsAddonReady,)
-
+//        unsafe
+//        {
+//            Callback.Fire(addon, updateState, valueArgs.ToArray());
+//        }
 //        await this.PerformWait(token);
 //    }
 //}

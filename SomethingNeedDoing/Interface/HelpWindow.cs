@@ -136,6 +136,26 @@ internal class HelpWindow : Window
                 "/send CONTROL+MENU+SHIFT+NUMPAD0",
             }),
         (
+            "hold", null,
+            "Send an arbitrary keystroke, to be held down, with optional modifiers. Keys are pressed in the same order as the command.",
+            new[] { "wait" },
+            new[]
+            {
+                "/send MULTIPLY",
+                "/send NUMPAD0",
+                "/send CONTROL+MENU+SHIFT+NUMPAD0",
+            }),
+        (
+            "release", null,
+            "Send an arbitrary keystroke, to be released, with optional modifiers. Keys are pressed in the same order as the command.",
+            new[] { "wait" },
+            new[]
+            {
+                "/send MULTIPLY",
+                "/send NUMPAD0",
+                "/send CONTROL+MENU+SHIFT+NUMPAD0",
+            }),
+        (
             "target", null,
             "Target anyone and anything that can be selected.",
             new[] { "wait", "index" },
@@ -295,6 +315,12 @@ internal class HelpWindow : Window
         }
 
         ImGui.PushFont(UiBuilder.MonoFont);
+
+        DisplayChangelog(
+           "2023-11-17",
+           "- Added /hold\n" +
+           "- Added /release.\n" +
+           "- Updated help documentation for lua commands.\n");
 
         DisplayChangelog(
            "2023-11-15",
@@ -850,11 +876,38 @@ bool HasStatus(string name)
 // id: status effect id(s).
 bool HasStatusId(uint id, ...)
 
-IsAddonVisible(string addonName)
-IsAddonReady(string addonName)
+bool IsAddonVisible(string addonName)
+bool IsAddonReady(string addonName)
 
 // Can fetch nested nodes
-GetNodeText(string addonName, int nodeNumber, ...)
+string GetNodeText(string addonName, int nodeNumber, ...)
+
+string GetSelectStringText(int index)
+string GetSelectIconStringText(int index)
+
+bool GetCharacterCondition(int flagID, bool hasCondition = true)
+
+bool IsInZone(int zoneID)
+int GetZoneID()
+
+string GetCharacterName(bool includeWorld = false)
+
+int GetItemCount(int itemID, bool includeHQ = true)
+
+bool DeliverooIsTurnInRunning()
+
+uint GetProgressIncrease(uint actionID)
+uint GetQualityIncrease(uint actionID)
+
+void LeaveDuty()
+
+bool IsLocalPlayerNull()
+bool IsPlayerDead()
+bool IsPlayerCasting()
+
+uint GetGil()
+
+uint GetClassJobId()
 ".Trim();
 
         ImGui.TextWrapped(text);
