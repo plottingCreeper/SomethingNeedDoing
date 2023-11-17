@@ -62,8 +62,7 @@ jobs:
         author_name: GitHub Action
         author_email: github-actions[bot]@users.noreply.github.com
         message: Update ${{ env.INTERNAL_NAME }}
-        new_branch: master
-        push: origin master --set-upstream --force
+        branch: master
 
 #  pull_request:
 #    needs: build
