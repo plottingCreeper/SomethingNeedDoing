@@ -62,7 +62,7 @@ jobs:
         author_name: GitHub Action
         author_email: github-actions[bot]@users.noreply.github.com
         message: Update ${{ env.INTERNAL_NAME }}
-        new_branch: master
+        branch: master
 
 #  pull_request:
 #    needs: build
