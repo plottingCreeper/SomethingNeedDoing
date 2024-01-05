@@ -1,19 +1,23 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
-
+using System.Text.RegularExpressions;
 using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Logging;
+using ECommons;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using FFXIVClientStructs.FFXIV.Client.Graphics.Kernel;
+using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using FFXIVClientStructs.FFXIV.Client.UI.Info;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.GeneratedSheets;
+using Lumina.Text;
 using SomethingNeedDoing.Exceptions;
-using SomethingNeedDoing.Interface;
 using SomethingNeedDoing.IPC;
 
 namespace SomethingNeedDoing.Misc;
@@ -149,6 +153,20 @@ public class CommandInterface : ICommandInterface
     {
         var cp = Service.ClientState.LocalPlayer?.MaxCp ?? 0;
         return (int)cp;
+    }
+
+    /// <inheritdoc/>
+    public int GetGp()
+    {
+        var gp = Service.ClientState.LocalPlayer?.CurrentGp ?? 0;
+        return (int)gp;
+    }
+
+    /// <inheritdoc/>
+    public int GetMaxGp()
+    {
+        var gp = Service.ClientState.LocalPlayer?.MaxGp ?? 0;
+        return (int)gp;
     }
 
     /// <inheritdoc/>
@@ -334,6 +352,16 @@ public class CommandInterface : ICommandInterface
         return addon->IsVisible;
     }
 
+    public unsafe bool IsNodeVisible(string addonName, int node)
+    {
+        var ptr = Service.GameGui.GetAddonByName(addonName, 1);
+        if (ptr == IntPtr.Zero)
+            return false;
+
+        var addon = (AtkUnitBase*)ptr;
+        return addon->UldManager.NodeList[node]->IsVisible;
+    }
+
     /// <inheritdoc/>
     public unsafe bool IsAddonReady(string addonName)
     {
@@ -463,7 +491,7 @@ public class CommandInterface : ICommandInterface
     public unsafe bool DeliverooIsTurnInRunning()
     {
         DeliverooIPC.Init();
-        return DeliverooIPC.IsTurnInRunning.InvokeFunc();
+        return DeliverooIPC.IsTurnInRunning!.InvokeFunc();
     }
 
     /// <inheritdoc/>
@@ -520,9 +548,128 @@ public class CommandInterface : ICommandInterface
 
     public bool IsPlayerCasting() => Service.ClientState.LocalPlayer!.IsCasting;
 
+    public unsafe bool IsMoving() => AgentMap.Instance()->IsPlayerMoving == 1;
+
     public unsafe uint GetGil() => InventoryManager.Instance()->GetGil();
 
     public uint GetClassJobId() => Svc.ClientState.LocalPlayer!.ClassJob.Id;
+
+    private static readonly unsafe IntPtr pronounModule = (IntPtr)Framework.Instance()->GetUiModule()->GetPronounModule();
+    private static readonly unsafe delegate* unmanaged<IntPtr, uint, GameObject*> getGameObjectFromPronounID = (delegate* unmanaged<IntPtr, uint, GameObject*>)Service.SigScanner.ScanText("E8 ?? ?? ?? ?? 48 8B D8 48 85 C0 0F 85 ?? ?? ?? ?? 8D 4F DD");
+    public static unsafe GameObject* GetGameObjectFromPronounID(uint id) => getGameObjectFromPronounID(pronounModule, id);
+
+    public float GetPlayerRawXPos(string character = "")
+    {
+        if (!character.IsNullOrEmpty())
+        {
+            unsafe
+            {
+                if (int.TryParse(character, out var p))
+                {
+                    var go = GetGameObjectFromPronounID((uint)(p + 42));
+                    return go != null ? go->Position.X : -1;
+                }
+                else return Svc.Objects.Where(x => x.IsTargetable).FirstOrDefault(x => x.Name.ToString().Equals(character))?.Position.X ?? -1;
+            }
+        }
+        return Svc.ClientState.LocalPlayer!.Position.X;
+    }
+
+    public float GetPlayerRawYPos(string character = "")
+    {
+        if (!character.IsNullOrEmpty())
+        {
+            unsafe
+            {
+                if (int.TryParse(character, out var p))
+                {
+                    var go = GetGameObjectFromPronounID((uint)(p + 42));
+                    return go != null ? go->Position.Y : -1;
+                }
+                else return Svc.Objects.Where(x => x.IsTargetable).FirstOrDefault(x => x.Name.ToString().Equals(character))?.Position.Y ?? -1;
+            }
+        }
+        return Svc.ClientState.LocalPlayer!.Position.Y;
+    }
+
+    public float GetPlayerRawZPos(string character = "")
+    {
+        if (!character.IsNullOrEmpty())
+        {
+            unsafe
+            {
+                if (int.TryParse(character, out var p))
+                {
+                    var go = GetGameObjectFromPronounID((uint)(p + 42));
+                    return go != null ? go->Position.Z : -1;
+                }
+                else return Svc.Objects.Where(x => x.IsTargetable).FirstOrDefault(x => x.Name.ToString().Equals(character))?.Position.Z ?? -1;
+            }
+        }
+        return Svc.ClientState.LocalPlayer!.Position.Z;
+    }
+
+    public float GetDistanceToPoint(float x, float y, float z) => Vector3.Distance(Svc.ClientState.LocalPlayer!.Position, new Vector3(x, y, z));
+
+    public unsafe int GetLevel(int expArrayIndex = -1)
+    {
+        if (expArrayIndex == -1) expArrayIndex = Svc.ClientState.LocalPlayer!.ClassJob.GameData!.ExpArrayIndex;
+        return UIState.Instance()->PlayerState.ClassJobLevelArray[expArrayIndex];
+    }
+
+    public unsafe int GetFCRank() => ((InfoProxyFreeCompany*)Framework.Instance()->UIModule->GetInfoModule()->GetInfoProxyById(InfoProxyId.FreeCompany))->Rank;
+
+    private static readonly Dictionary<uint, Quest>? QuestSheet = Svc.Data?.GetExcelSheet<Quest>()?.Where(x => x.Id.RawString.Length > 0).ToDictionary(i => i.RowId, i => i);
+    public static string GetQuestNameByID(ushort id)
+    {
+        if (id > 0)
+        {
+            var digits = id.ToString().Length;
+            if (QuestSheet!.Any(x => Convert.ToInt16(x.Value.Id.RawString.GetLast(digits)) == id))
+            {
+                return QuestSheet!.First(x => Convert.ToInt16(x.Value.Id.RawString.GetLast(digits)) == id).Value.Name.RawString.Replace("", "").Trim();
+            }
+        }
+        return "";
+    }
+
+    public unsafe bool IsQuestAccepted(ushort id) => QuestManager.Instance()->IsQuestAccepted(id);
+    public unsafe bool IsQuestComplete(ushort id) => QuestManager.IsQuestComplete(id);
+    public unsafe byte GetQuestSequence(ushort id) => QuestManager.GetQuestSequence(id);
+
+    private readonly List<SeString> questNames = Svc.Data.GetExcelSheet<Quest>(Svc.ClientState.ClientLanguage)!.Select(x => x.Name).ToList();
+    public uint? GetQuestIDByName(string name)
+    {
+        var matchingRows = questNames.Select((n, i) => (n, i)).Where(t => !string.IsNullOrEmpty(t.n) && IsMatch(name, t.n)).ToList();
+        if (matchingRows.Count > 1)
+        {
+            matchingRows = matchingRows.OrderByDescending(t => MatchingScore(t.n, name)).ToList();
+        }
+        return matchingRows.Count > 0 ? Svc.Data.GetExcelSheet<Quest>(Svc.ClientState.ClientLanguage)!.GetRow((uint)matchingRows.First().i)!.RowId : null;
+    }
+
+    private static bool IsMatch(string x, string y) => Regex.IsMatch(x, $@"\b{Regex.Escape(y)}\b");
+    private static object MatchingScore(string item, string line)
+    {
+        var score = 0;
+
+        // primitive matching based on how long the string matches. Enough for now but could need expanding later
+        if (line.Contains(item))
+            score += item.Length;
+
+        return score;
+    }
+
+    public unsafe int GetNodeListCount(string addonName)
+    {
+        if (GenericHelpers.TryGetAddonByName<AtkUnitBase>(addonName, out var addon))
+        {
+            return addon->UldManager.NodeListCount;
+        }
+        return 0;
+    }
+
+    public string GetTargetName() => Svc.Targets.Target?.Name.TextValue ?? "";
 
     private unsafe int GetNodeTextAsInt(AtkTextNode* node, string error)
     {

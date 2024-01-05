@@ -100,6 +100,18 @@ public interface ICommandInterface
     public int GetMaxCp();
 
     /// <summary>
+    /// Get the current GP amount.
+    /// </summary>
+    /// <returns>The current GP amount.</returns>
+    public int GetGp();
+
+    /// <summary>
+    /// Get the max GP amount.
+    /// </summary>
+    /// <returns>The max GP amount.</returns>
+    public int GetMaxGp();
+
+    /// <summary>
     /// Get the current step value.
     /// </summary>
     /// <returns>The current step value.</returns>

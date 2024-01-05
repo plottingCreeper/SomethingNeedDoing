@@ -8,9 +8,9 @@ internal static class DeliverooIPC
     private const string TurnInStartedStr = "Deliveroo.TurnInStarted";
     private const string TurnInStoppedStr = "Deliveroo.TurnInStopped";
 
-    internal static ICallGateSubscriber<bool> IsTurnInRunning;
-    internal static ICallGateSubscriber<object> TurnInStarted;
-    internal static ICallGateSubscriber<object> TurnInStopped;
+    internal static ICallGateSubscriber<bool>? IsTurnInRunning;
+    internal static ICallGateSubscriber<object>? TurnInStarted;
+    internal static ICallGateSubscriber<object>? TurnInStopped;
 
     internal static void Init()
     {

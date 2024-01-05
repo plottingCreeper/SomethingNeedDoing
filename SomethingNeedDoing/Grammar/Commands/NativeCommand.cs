@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -39,7 +41,7 @@ internal class NativeCommand : MacroCommand
     {
         Service.Log.Debug($"Executing: {this.Text}");
 
-        Service.ChatManager.SendMessage(this.Text);
+        Service.ChatManager.SendMessage($"{(new[] { "/", "<" }.Any(this.Text.StartsWith) ? this.Text : $"/e {this.Text}")}");
 
         await this.PerformWait(token);
     }

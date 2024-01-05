@@ -12,7 +12,11 @@ using Dalamud.Interface;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
+using ECommons;
+using ECommons.DalamudServices;
 using ImGuiNET;
+using Lumina.Excel;
+using Lumina.Excel.GeneratedSheets;
 
 namespace SomethingNeedDoing.Interface;
 
@@ -141,9 +145,9 @@ internal class HelpWindow : Window
             new[] { "wait" },
             new[]
             {
-                "/send MULTIPLY",
-                "/send NUMPAD0",
-                "/send CONTROL+MENU+SHIFT+NUMPAD0",
+                "/hold MULTIPLY",
+                "/hold NUMPAD0",
+                "/hold CONTROL+MENU+SHIFT+NUMPAD0",
             }),
         (
             "release", null,
@@ -151,9 +155,9 @@ internal class HelpWindow : Window
             new[] { "wait" },
             new[]
             {
-                "/send MULTIPLY",
-                "/send NUMPAD0",
-                "/send CONTROL+MENU+SHIFT+NUMPAD0",
+                "/release MULTIPLY",
+                "/release NUMPAD0",
+                "/release CONTROL+MENU+SHIFT+NUMPAD0",
             }),
         (
             "target", null,
@@ -268,7 +272,7 @@ internal class HelpWindow : Window
     {
         if (ImGui.BeginTabBar("HelpTab"))
         {
-            var tabs = new (string Title, Action Dele)[]
+            var tabs = new (string Title, System.Action Dele)[]
             {
                 ("Changelog", this.DrawChangelog),
                 ("Options", this.DrawOptions),
@@ -279,6 +283,7 @@ internal class HelpWindow : Window
                 ("Clicks", this.DrawClicks),
                 ("Sends", this.DrawVirtualKeys),
                 ("Conditions", this.DrawAllConditions),
+                ("Game Data", this.DrawGameData),
             };
 
             foreach (var (title, dele) in tabs)
@@ -315,6 +320,50 @@ internal class HelpWindow : Window
         }
 
         ImGui.PushFont(UiBuilder.MonoFont);
+
+        DisplayChangelog(
+          "2024-01-04",
+          "- Added IsNodeVisible().\n");
+
+        DisplayChangelog(
+           "2023-12-22",
+           "- Updated the GetRaw coordinate functions to take in an object name or party member position.\n");
+
+        DisplayChangelog(
+           "2023-12-12",
+           "- Added IsQuestAccepted()\n" +
+           "- Added IsQuestComplete()\n" +
+           "- Added GetQuestSequence()\n" +
+           "- Added GetQuestIDByName()\n" +
+           "- Added GetQuestNameByID()\n" +
+           "- Added GetNodeListCount()\n" +
+           "- Added GetTargetName()\n");
+
+        DisplayChangelog(
+           "2023-11-06",
+           "- Added GetLevel()\n" +
+           "- Added \"Game Data\" tab to the help menu.\n" +
+           "- Added GetGp() and GetMaxGp() (thanks nihilistzsche)\n" +
+           "- Added GetFCRank()\n");
+
+        DisplayChangelog(
+           "2023-11-23",
+           "- Added GetPlayerRawXPos()\n" +
+           "- Added GetPlayerRawZPos()\n" +
+           "- Added GetPlayerRawYPos()\n" +
+           "- Added GetDistanceToPoint()\n");
+
+        DisplayChangelog(
+           "2023-11-23",
+           "- Fix for IsMoving() to detect forms of automated movement.\n");
+
+        DisplayChangelog(
+           "2023-11-21",
+           "- Added IsMoving()\n");
+
+        DisplayChangelog(
+           "2023-11-20",
+           "- Macros will now automatically prefix non-command text lines with /echo. To send a message to chat now requires you to prefix it with the appropiate chat channel command.\n");
 
         DisplayChangelog(
            "2023-11-17",
@@ -877,6 +926,7 @@ bool HasStatus(string name)
 bool HasStatusId(uint id, ...)
 
 bool IsAddonVisible(string addonName)
+bool IsNodeVisible(string addonName, int node)
 bool IsAddonReady(string addonName)
 
 // Can fetch nested nodes
@@ -904,10 +954,29 @@ void LeaveDuty()
 bool IsLocalPlayerNull()
 bool IsPlayerDead()
 bool IsPlayerCasting()
+bool IsMoving()
 
 uint GetGil()
 
 uint GetClassJobId()
+
+// if you pass an invalid name or party position it will return -1
+float GetPlayerRawXPos(string character = "")
+float GetPlayerRawYPos(string character = "")
+float GetPlayerRawZPos(string character = "")
+float GetDistanceToPoint(float x, float y, float z))
+
+int GetLevel(uint ExpArrayIndex = -1)
+
+string GetQuestNameByID(ushort id)
+bool IsQuestAccepted(ushort id)
+bool IsQuestComplete(ushort id)
+byte GetQuestSequence(ushort id)
+uint? GetQuestIDByName(string name)
+
+int GetNodeListCount(string addonName)
+
+string GetTargetName()
 ".Trim();
 
         ImGui.TextWrapped(text);
@@ -982,5 +1051,22 @@ uint GetClassJobId()
             if (isActive)
                 ImGui.PopStyleColor();
         }
+    }
+
+    private readonly IEnumerable<ClassJob> classJobSheet = Svc.Data.GetExcelSheet<ClassJob>(Svc.ClientState.ClientLanguage)!.Where(x => !x.Name.RawString.IsNullOrEmpty());
+    private void DrawGameData()
+    {
+        using var font = ImRaii.PushFont(UiBuilder.MonoFont);
+
+        ImGui.TextWrapped("Misc Game Data Information");
+        ImGui.Separator();
+
+        ImGui.TextWrapped("ClassJob");
+        ImGui.PushStyleColor(ImGuiCol.Text, ShadedColor);
+        foreach (var cj in classJobSheet)
+        {
+            ImGui.Text($"{cj.Name}: Key={cj.RowId}; ExpArrayIndex={cj.ExpArrayIndex}");
+        }
+        ImGui.PopStyleColor();
     }
 }
