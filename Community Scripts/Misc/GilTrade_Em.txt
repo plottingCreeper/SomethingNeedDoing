@@ -1,0 +1,13 @@
+--[[
+  Description: Start the macro and go make a sandwich and your alt has 50M. Requires Pandora's Box Auto Numerics
+  Author: Em
+  Link: https://discord.com/channels/1162031769403543643/1162031770242400299/1166690467941982248
+]]
+
+/trade
+/waitaddon Trade <maxwait.60>
+/pcall Trade false 2 0
+/wait 1
+/pcall Trade false 0 0
+/wait 2
+/loop

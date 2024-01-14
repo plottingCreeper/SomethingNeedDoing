@@ -352,14 +352,19 @@ public class CommandInterface : ICommandInterface
         return addon->IsVisible;
     }
 
-    public unsafe bool IsNodeVisible(string addonName, int node)
+    public unsafe bool IsNodeVisible(string addonName, int node, int child1 = -1, int child2 = -1)
     {
         var ptr = Service.GameGui.GetAddonByName(addonName, 1);
         if (ptr == IntPtr.Zero)
             return false;
 
         var addon = (AtkUnitBase*)ptr;
-        return addon->UldManager.NodeList[node]->IsVisible;
+
+        return child2 != -1
+            ? addon->UldManager.NodeList[node]->ChildNode[child1].ChildNode[child2].IsVisible
+            : child1 != -1
+                ? addon->UldManager.NodeList[node]->ChildNode[child1].IsVisible
+                : addon->UldManager.NodeList[node]->IsVisible;
     }
 
     /// <inheritdoc/>
