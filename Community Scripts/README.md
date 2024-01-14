@@ -6,4 +6,4 @@ Many of these were originally posted to [Liza's Discord](https://discord.com/inv
 
 ### Other Scripts
 
-[Plotting Creeper's Repo](https://github.com/plottingCreeper/FFXIV-scripts-and-macros/)
+[plottingCreeper's Repo](https://github.com/plottingCreeper/FFXIV-scripts-and-macros/)
