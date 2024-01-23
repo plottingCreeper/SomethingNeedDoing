@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Dalamud.Logging;
 using NLua.Exceptions;
 using SomethingNeedDoing.Exceptions;
 using SomethingNeedDoing.Grammar.Commands;

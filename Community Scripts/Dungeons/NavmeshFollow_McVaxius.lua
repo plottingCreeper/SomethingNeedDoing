@@ -1,10 +1,19 @@
  --[[
-  Description: v3 of the navmesh follow. works alot better and i actually tested it. you will have to click rebuild navmesh yourself
+  Description: Navmesh follow. works alot better and i actually tested it. you will have to click rebuild navmesh yourself
   Author: McVaxius
   Link: https://discord.com/channels/1162031769403543643/1162799234874093661/1194784208749608991
 ]]
 
---v3
+--[[
+contemplate these for next update:
+          "- Added GetTargetRawXPos()" +
+          "- Added GetTargetRawYPos()" +
+          "- Added GetTargetRawZPos()" +
+          "- Added GetDistanceToTarget()" +
+          "- Added GetFlagXCoord()" +
+          "- Added GetFlagYCoord()");
+]]
+
 --configuration notes:
 --***install vnavmesh (veyn) might still be a compile it yourself situation
 --pull and compile from -> https://github.com/awgil/ffxiv_navmesh/
@@ -31,7 +40,7 @@
 --*actually doing something other than spamming echo when the deest is super far or target is defaulted to 1,1,1 (i think thats what the getraw from snd does?)
 --*looking for interaction points and navmeshing to them if they are within some yalms
 --*maybe when not in combat check for interaction points that are close by and on same z plane within tolerance of like 3 yalms then path to it?
---*optionally filter the entire thing with some area number white list in an array :p
+--*optionally filter the entire thing with some area number white list in an array :p 
 
 --navmesh test
 local char_snake = 2 -- character slot 2, slot 1 is us
@@ -78,7 +87,7 @@ local function setdeest()
 		-- dist_between_points will contain the distance between the two points
 		yield("/echo Distance between char_snake and point 1: " .. dist_between_points)
 	else
-		yield("/echo Failed to retrieve coordinates for one or both points.11111")
+		yield("/echo Failed to retrieve coordinates for one or both points.")
 		dist_between_points = 500 -- default value haha
 	end
 end
@@ -95,7 +104,7 @@ while neverstop do
 	--test dist to the intended party leader
 	setdeest()
 	if dist_between_points > snake_deest and dist_between_points < meh_deest then
-            yield("/vnavmesh moveto " .. math.ceil(currentLocX) .. " " .. math.ceil(currentLocY) .. " " .. math.ceil(currentLocZ))
+            yield("/vnavmesh moveto "..currentLocX.." "..currentLocY.." "..currentLocZ)
 			--yield("/echo vnavmesh moveto "..math.ceil(currentLocX).." "..math.ceil(currentLocY).." "..math.ceil(currentLocZ))
     end
 
@@ -111,7 +120,7 @@ while neverstop do
 			--yield("/echo vnavmesh moveto "..math.ceil(currentLocX).." "..math.ceil(currentLocY).." "..math.ceil(currentLocZ))
 			yield("/lockon on")
 			yield("/automove on")
-			yield("/wait 1") --on/off movements
+			yield("/wait 1") --on/off movements			
 		end
 		if dist_between_points < (enemy_deest + 1) then
 			yield("/lockon off")
@@ -122,7 +131,8 @@ while neverstop do
 	--if we are > meh_deest
 		--check for interaction points or something
 	yield("/wait 1") -- default wait between "tics"
-
+	
+	--this part will be deprecated soon once there is some kind of autobuilding
 	--check if we chagned areas and rebuild navmesh or just wait as normal
 	we_are_in = GetZoneID() --where are we?
 	if type(we_are_in) ~= "number" then
@@ -131,10 +141,12 @@ while neverstop do
 		yield("/wait 10")
 	end
 	if we_are_in ~= we_were_in then
-		--yield("/vnavmesh RebuildNavmesh")
+		yield("/vnavmesh stop")
+		yield("/wait 1")
+		yield("/vnavmesh rebuild")
 		yield("/echo we changed areas. rebuild the navmesh!")
 		--yield("/wait 10")
 	end
-
+	
 	we_were_in = we_are_in --record this as we are in this area now
 end

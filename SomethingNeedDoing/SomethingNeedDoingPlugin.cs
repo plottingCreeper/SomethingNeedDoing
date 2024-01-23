@@ -6,9 +6,9 @@ using Dalamud.Game.Command;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using ECommons;
-using ECommons.DalamudServices;
 using SomethingNeedDoing.Interface;
 using SomethingNeedDoing.Managers;
+using SomethingNeedDoing.Misc;
 
 namespace SomethingNeedDoing
 {
@@ -91,6 +91,7 @@ namespace SomethingNeedDoing
             Service.MacroManager?.Dispose();
             Service.GameEventManager?.Dispose();
             Service.ChatManager?.Dispose();
+            IpcCommands.Instance?.Dispose();
         }
 
         /// <summary>

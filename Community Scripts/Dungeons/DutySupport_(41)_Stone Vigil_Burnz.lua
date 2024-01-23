@@ -90,10 +90,5 @@ while currentWaypointIndex <= #waypoints do
         end
     end
 
-<<<<<<< HEAD:Community Scripts/Dungeons/DutySupport_(41)_Stone Vigil_Burnz.lua
     yield("/wait 2") -- Short delay to check the position
 end
-=======
-        yield("/wait 2")  -- Short delay to check the position
-end
->>>>>>> 0ef3efd19a5e8cecd08ed55be22bd0a18c102db2:Community Scripts/Dungeons/DutySupport_(41)_Stone Vigil_BurnerReborn.lua

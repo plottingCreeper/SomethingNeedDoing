@@ -2,9 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Reflection.Emit;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
@@ -15,7 +13,6 @@ using Dalamud.Interface.Windowing;
 using ECommons;
 using ECommons.DalamudServices;
 using ImGuiNET;
-using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 
 namespace SomethingNeedDoing.Interface;
@@ -231,10 +228,17 @@ internal class HelpWindow : Window
             }),
         (
             "index",
-            "For supported commands, specify the index. For example, when there are multiple targets with the same name.",
+            "For supported commands, specify the object index. For example, when there are multiple targets with the same name.",
             new[]
             {
                 "/target abc <index.5>",
+            }),
+        (
+            "list",
+            "For supported commands, specify the index to check. For example, when there are multiple targets with the same name.",
+            new[]
+            {
+                "/target abc <list.5>",
             }),
     };
 
@@ -320,6 +324,29 @@ internal class HelpWindow : Window
         }
 
         ImGui.PushFont(UiBuilder.MonoFont);
+
+        DisplayChangelog(
+            "2024-01-23",
+            "- Added new <list.listIndex> modifier. Used for /target where you're searching for targets with the same name.\n");
+
+        DisplayChangelog(
+            "2024-01-22",
+            "- Added ARAnyWaitingToBeProcessed()\n" +
+            "- Added ARRetainersWaitingToBeProcessed()\n" +
+            "- Added ARSubsWaitingToBeProcessed()\n");
+
+        DisplayChangelog(
+            "2024-01-21",
+            "- Added GetInventoryFreeSlotCount()\n");
+        
+        DisplayChangelog(
+          "2024-01-18",
+          "- Added GetTargetRawXPos()\n" +
+          "- Added GetTargetRawYPos()\n" +
+          "- Added GetTargetRawZPos()\n" +
+          "- Added GetDistanceToTarget()\n" +
+          "- Added GetFlagXCoord()\n" +
+          "- Added GetFlagYCoord()\n");
 
         DisplayChangelog(
           "2024-01-04",
@@ -912,7 +939,7 @@ int GetMaxCp()
 
 int GetStep()
 int GetPercentHQ()
-bool NeedsRepair()
+bool NeedsRepair(float below = 0)
 
 // within: Return false if the next highest spiritbond is >= the within value.
 bool CanExtractMateria(float within = 100)
@@ -945,6 +972,9 @@ string GetCharacterName(bool includeWorld = false)
 int GetItemCount(int itemID, bool includeHQ = true)
 
 bool DeliverooIsTurnInRunning()
+bool ARAnyWaitingToBeProcessed(bool allCharacters = false)
+bool ARRetainersWaitingToBeProcessed(bool allCharacters = false)
+bool ARSubsWaitingToBeProcessed(bool allCharacters = false)
 
 uint GetProgressIncrease(uint actionID)
 uint GetQualityIncrease(uint actionID)
@@ -966,7 +996,16 @@ float GetPlayerRawYPos(string character = "")
 float GetPlayerRawZPos(string character = "")
 float GetDistanceToPoint(float x, float y, float z))
 
+float GetTargetRawXPos()
+float GetTargetRawYPos()
+float GetTargetRawZPos()
+float GetDistanceToTarget()
+
+float GetFlagXCoord()
+float GetFlagYCoord()
+
 int GetLevel(uint ExpArrayIndex = -1)
+int GetInventoryFreeSlotCount()
 
 string GetQuestNameByID(ushort id)
 bool IsQuestAccepted(ushort id)

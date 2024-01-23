@@ -1,5 +1,4 @@
 //using System.Collections.Generic;
-//using System.Linq;
 //using System.Text.RegularExpressions;
 //using System.Threading;
 //using System.Threading.Tasks;
@@ -15,28 +14,31 @@
 //internal class CallbackCommand : MacroCommand
 //{
 //    private static readonly Regex Regex = new(@"^/callback\s+(?<name>.*?)\s*$", RegexOptions.Compiled);
-//    private AtkUnitBase* addon;
-//    private bool updateState;
-//    private List<object> valueArgs = new();
+//    private readonly unsafe AtkUnitBase* addon;
+//    private readonly bool updateState;
+//    private readonly List<object> valueArgs = [];
 
-//    private unsafe CallbackCommand(string text)
-//        : base(text, WaitModifier.TryParse(0, out var wm))
+//    private unsafe CallbackCommand(AtkUnitBase* addon, bool updateState, List<object> valueArgs, WaitModifier wait) : base("", wait)
 //    {
-//        var args = text.Split(' ').ToList();
+//        this.addon = addon;
+//        this.updateState = updateState;
+//        this.valueArgs = valueArgs;
+//    }
+
+//    public unsafe static CallbackCommand Parse(List<string> args)
+//    {
+//        var text = string.Join(" ", args);
+//        _ = WaitModifier.TryParse(ref text, out var waitModifier);
+
+
 //        if (!TryGetAddonByName<AtkUnitBase>(args[0], out var addonArg))
 //        {
 //            Svc.Log.Info($"Invalid addon {args[0]}. Please follow \"callback <addon> <bool> <atkValues>\"");
-//            return;
 //        }
 //        if (!bool.TryParse(args[1], out var boolArg))
 //        {
 //            Svc.Log.Info($"Invalid bool. Please follow \"callback <addon> <bool> <atkValues>\"");
-//            return;
 //        }
-//    }
-
-//    public static CallbackCommand Parse(List<string> args)
-//    {
 
 //        var valueArgs = new List<object>();
 
@@ -81,7 +83,7 @@
 //            Svc.Log.Error("Error: Unclosed quotes.");
 //        }
 
-//        return new CallbackCommand(args);
+//        return new CallbackCommand(addonArg, boolArg, valueArgs, waitModifier);
 //    }
 
 //    public async override Task Execute(ActiveMacro macro, CancellationToken token)

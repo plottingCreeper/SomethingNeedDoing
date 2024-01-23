@@ -4,21 +4,18 @@ using System.Text.RegularExpressions;
 namespace SomethingNeedDoing.Grammar.Modifiers;
 
 /// <summary>
-/// The &lt;index&gt; modifier.
+/// The &lt;list index&gt; modifier.
 /// </summary>
-internal class IndexModifier : MacroModifier
+internal class ListIndexModifier : MacroModifier
 {
-    private static readonly Regex Regex = new(@"(?<modifier><index\.(?<objectId>\d+(?:\.\d+)?)>)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex Regex = new(@"(?<modifier><list\.(?<listIndex>\d+(?:\.\d+)?)>)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-    private IndexModifier(int objectId)
+    private ListIndexModifier(int listIndex)
     {
-        this.ObjectId = objectId;
+        this.ListIndex = listIndex;
     }
 
-    /// <summary>
-    /// Gets the objectIndex of the specified Target.
-    /// </summary>
-    public int ObjectId { get; }
+    public int ListIndex { get; }
 
     /// <summary>
     /// Parse the text as a modifier.
@@ -26,25 +23,25 @@ internal class IndexModifier : MacroModifier
     /// <param name="text">Text to parse.</param>
     /// <param name="command">A parsed modifier.</param>
     /// <returns>A value indicating whether the modifier matched.</returns>
-    public static bool TryParse(ref string text, out IndexModifier command)
+    public static bool TryParse(ref string text, out ListIndexModifier command)
     {
         var match = Regex.Match(text);
         var success = match.Success;
 
         if (!success)
         {
-            command = new IndexModifier(0);
+            command = new ListIndexModifier(0);
             return false;
         }
 
         var group = match.Groups["modifier"];
         text = text.Remove(group.Index, group.Length);
 
-        var indexGroup = match.Groups["objectId"];
+        var indexGroup = match.Groups["listIndex"];
         var indexValue = indexGroup.Value;
         var index = int.Parse(indexValue, CultureInfo.InvariantCulture);
 
-        command = new IndexModifier(index);
+        command = new ListIndexModifier(index);
         return true;
     }
 }

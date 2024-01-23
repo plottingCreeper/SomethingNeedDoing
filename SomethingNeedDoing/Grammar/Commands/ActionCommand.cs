@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Conditions;
 using SomethingNeedDoing.Exceptions;
 using SomethingNeedDoing.Grammar.Modifiers;
 using SomethingNeedDoing.Misc;
+using SomethingNeedDoing.Misc.Commands;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
