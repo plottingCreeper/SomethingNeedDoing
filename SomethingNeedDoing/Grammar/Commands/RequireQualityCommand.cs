@@ -24,8 +24,7 @@ internal class RequireQualityCommand : MacroCommand
     /// <param name="text">Original text.</param>
     /// <param name="quality">Quality value.</param>
     /// <param name="wait">Wait value.</param>
-    private RequireQualityCommand(string text, uint quality, WaitModifier wait)
-        : base(text, wait)
+    private RequireQualityCommand(string text, uint quality, WaitModifier wait) : base(text, wait)
     {
         this.requiredQuality = quality;
     }
@@ -54,7 +53,7 @@ internal class RequireQualityCommand : MacroCommand
     {
         Service.Log.Debug($"Executing: {this.Text}");
 
-        var current = CommandInterface.Instance.GetQuality();
+        var current = CraftingCommands.Instance.GetQuality();
 
         if (current < this.requiredQuality)
             throw new MacroPause("Required quality was not found", UiColor.Red);

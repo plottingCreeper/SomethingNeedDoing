@@ -39,8 +39,7 @@ internal class ActionCommand : MacroCommand
     /// <param name="waitMod">Wait value.</param>
     /// <param name="unsafeMod">Perform the action safely.</param>
     /// <param name="conditionMod">Required crafting condition.</param>
-    private ActionCommand(string text, string actionName, WaitModifier waitMod, UnsafeModifier unsafeMod, ConditionModifier conditionMod)
-        : base(text, waitMod)
+    private ActionCommand(string text, string actionName, WaitModifier waitMod, UnsafeModifier unsafeMod, ConditionModifier conditionMod) : base(text, waitMod)
     {
         this.actionName = actionName.ToLowerInvariant();
         this.unsafeMod = unsafeMod;
@@ -88,20 +87,20 @@ internal class ActionCommand : MacroCommand
         {
             if (Service.Configuration.CraftSkip)
             {
-                if (CommandInterface.Instance.IsNotCrafting())
+                if (CraftingCommands.Instance.IsNotCrafting())
                 {
                     Service.Log.Debug($"Not crafting skip: {this.Text}");
                     return;
                 }
 
-                if (CommandInterface.Instance.HasMaxProgress())
+                if (CraftingCommands.Instance.HasMaxProgress())
                 {
                     Service.Log.Debug($"Max progress skip: {this.Text}");
                     return;
                 }
             }
 
-            if (Service.Configuration.QualitySkip && IsSkippableCraftingQualityAction(this.actionName) && CommandInterface.Instance.HasMaxQuality())
+            if (Service.Configuration.QualitySkip && IsSkippableCraftingQualityAction(this.actionName) && CraftingCommands.Instance.HasMaxQuality())
             {
                 Service.Log.Debug($"Max quality skip: {this.Text}");
                 return;

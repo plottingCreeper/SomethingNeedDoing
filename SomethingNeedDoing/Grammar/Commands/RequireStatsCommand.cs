@@ -33,8 +33,7 @@ internal class RequireStatsCommand : MacroCommand
     /// <param name="cp">Cp value.</param>
     /// <param name="wait">Wait value.</param>
     /// <param name="maxWait">MaxWait value.</param>
-    private RequireStatsCommand(string text, uint craftsmanship, uint control, uint cp, WaitModifier wait, MaxWaitModifier maxWait)
-        : base(text, wait)
+    private RequireStatsCommand(string text, uint craftsmanship, uint control, uint cp, WaitModifier wait, MaxWaitModifier maxWait) : base(text, wait)
     {
         this.requiredCraftsmanship = craftsmanship;
         this.requiredControl = control;
@@ -76,7 +75,7 @@ internal class RequireStatsCommand : MacroCommand
     {
         Service.Log.Debug($"Executing: {this.Text}");
 
-        bool AreStatsGood() => CommandInterface.Instance.HasStats(this.requiredCraftsmanship, this.requiredControl, this.requiredCp);
+        bool AreStatsGood() => CraftingCommands.Instance.HasStats(this.requiredCraftsmanship, this.requiredControl, this.requiredCp);
 
         var hasStats = await this.LinearWait(StatusCheckInterval, this.maxWait, AreStatsGood, token);
 

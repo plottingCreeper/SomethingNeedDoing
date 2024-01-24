@@ -326,6 +326,11 @@ internal class HelpWindow : Window
         ImGui.PushFont(UiBuilder.MonoFont);
 
         DisplayChangelog(
+            "2024-01-24",
+            "- Added GetActiveWeatherID()\n" +
+            "- Added a section in the help menu to decipher weather IDs.\n");
+
+        DisplayChangelog(
             "2024-01-23",
             "- Added new <list.listIndex> modifier. Used for /target where you're searching for targets with the same name.\n");
 
@@ -1016,6 +1021,7 @@ uint? GetQuestIDByName(string name)
 int GetNodeListCount(string addonName)
 
 string GetTargetName()
+byte GetActiveWeatherID()
 ".Trim();
 
         ImGui.TextWrapped(text);
@@ -1093,6 +1099,7 @@ string GetTargetName()
     }
 
     private readonly IEnumerable<ClassJob> classJobSheet = Svc.Data.GetExcelSheet<ClassJob>(Svc.ClientState.ClientLanguage)!.Where(x => !x.Name.RawString.IsNullOrEmpty());
+    private readonly IEnumerable<Weather> weatherSheet = Svc.Data.GetExcelSheet<Weather>(Svc.ClientState.ClientLanguage)!.Where(x => !x.Name.RawString.IsNullOrEmpty());
     private void DrawGameData()
     {
         using var font = ImRaii.PushFont(UiBuilder.MonoFont);
@@ -1105,6 +1112,15 @@ string GetTargetName()
         foreach (var cj in classJobSheet)
         {
             ImGui.Text($"{cj.Name}: Key={cj.RowId}; ExpArrayIndex={cj.ExpArrayIndex}");
+        }
+        ImGui.PopStyleColor();
+
+        ImGui.Separator();
+        ImGui.TextWrapped("ClassJob");
+        ImGui.PushStyleColor(ImGuiCol.Text, ShadedColor);
+        foreach (var w in weatherSheet)
+        {
+            ImGui.Text($"{w.Name}: Key={w.RowId}");
         }
         ImGui.PopStyleColor();
     }

@@ -8,7 +8,7 @@ using Dalamud.Plugin;
 using ECommons;
 using SomethingNeedDoing.Interface;
 using SomethingNeedDoing.Managers;
-using SomethingNeedDoing.Misc;
+using SomethingNeedDoing.Misc.Commands;
 
 namespace SomethingNeedDoing
 {

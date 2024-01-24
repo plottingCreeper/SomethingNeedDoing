@@ -4,16 +4,13 @@ using SomethingNeedDoing.IPC;
 using System;
 using System.Linq;
 
-namespace SomethingNeedDoing.Misc;
+namespace SomethingNeedDoing.Misc.Commands;
 
-/// <summary>
-/// Miscellaneous functions that commands/scripts can use.
-/// </summary>
 public class IpcCommands
 {
-    private readonly AutoRetainerApi _autoRetainerApi;
-
     internal static IpcCommands Instance { get; } = new();
+
+    private readonly AutoRetainerApi _autoRetainerApi;
 
     internal IpcCommands()
     {

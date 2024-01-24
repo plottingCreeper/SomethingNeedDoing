@@ -234,8 +234,15 @@ internal partial class ActiveMacro : IDisposable
         this.lua.State.Encoding = Encoding.UTF8;
         this.lua.LoadCLRPackage();
 
-        RegisterClassMethods(this.lua, CommandInterface.Instance);
+        RegisterClassMethods(this.lua, ActionCommands.Instance);
+        RegisterClassMethods(this.lua, AddonCommands.Instance);
+        RegisterClassMethods(this.lua, CharacterStateCommands.Instance);
+        RegisterClassMethods(this.lua, CraftingCommands.Instance);
+        RegisterClassMethods(this.lua, InventoryCommands.Instance);
         RegisterClassMethods(this.lua, IpcCommands.Instance);
+        RegisterClassMethods(this.lua, QuestCommands.Instance);
+        RegisterClassMethods(this.lua, TargetStateCommands.Instance);
+        RegisterClassMethods(this.lua, WorldStateCommands.Instance);
 
         script = string.Format(EntrypointTemplate, script);
 
