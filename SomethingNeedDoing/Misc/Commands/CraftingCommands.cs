@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Dalamud.Game.ClientState.Conditions;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
@@ -12,6 +15,18 @@ namespace SomethingNeedDoing.Misc.Commands;
 public class CraftingCommands()
 {
     internal static CraftingCommands Instance { get; } = new();
+
+    public List<string> ListAllFunctions()
+    {
+        MethodInfo[] methods = this.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        var list = new List<string>();
+        foreach (MethodInfo method in methods.Where(x => x.Name != nameof(ListAllFunctions) && x.DeclaringType != typeof(object)))
+        {
+            var parameterList = method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}{(p.IsOptional ? " = " + (p.DefaultValue ?? "null") : "")}");
+            list.Add($"{method.ReturnType.Name} {method.Name}({string.Join(", ", parameterList)})");
+        }
+        return list;
+    }
     public bool IsCrafting() => Service.Condition[ConditionFlag.Crafting] && !Service.Condition[ConditionFlag.PreparingToCraft];
 
     public bool IsNotCrafting() => !this.IsCrafting();

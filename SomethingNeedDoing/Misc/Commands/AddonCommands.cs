@@ -2,6 +2,9 @@
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using SomethingNeedDoing.Exceptions;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 namespace SomethingNeedDoing.Misc.Commands;
@@ -9,6 +12,18 @@ namespace SomethingNeedDoing.Misc.Commands;
 public class AddonCommands
 {
     internal static AddonCommands Instance { get; } = new();
+
+    public List<string> ListAllFunctions()
+    {
+        MethodInfo[] methods = this.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        var list = new List<string>();
+        foreach (MethodInfo method in methods.Where(x => x.Name != nameof(ListAllFunctions) && x.DeclaringType != typeof(object)))
+        {
+            var parameterList = method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}{(p.IsOptional ? " = " + (p.DefaultValue ?? "null") : "")}");
+            list.Add($"{method.ReturnType.Name} {method.Name}({string.Join(", ", parameterList)})");
+        }
+        return list;
+    }
     public unsafe bool IsAddonVisible(string addonName)
     {
         var ptr = Service.GameGui.GetAddonByName(addonName, 1);

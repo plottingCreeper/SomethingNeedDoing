@@ -7,6 +7,7 @@ then delete these first 5 lines and enjoy.
 --you need visland, you need to not use "wait in lobby" in autoretainer
 --you need the version of snd related to the repo where you found this
 --you need to have each char on the fisher job.  lalter version will fix this.
+--having liza's discard helper will help with discarding garbage fish
 
 
 --[[

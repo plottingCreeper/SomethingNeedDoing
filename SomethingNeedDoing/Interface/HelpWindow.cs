@@ -14,6 +14,8 @@ using ECommons;
 using ECommons.DalamudServices;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
+using SomethingNeedDoing.Misc;
+using SomethingNeedDoing.Misc.Commands;
 
 namespace SomethingNeedDoing.Interface;
 
@@ -324,6 +326,46 @@ internal class HelpWindow : Window
         }
 
         ImGui.PushFont(UiBuilder.MonoFont);
+
+        DisplayChangelog(
+          "2024-01-27",
+          "- Added IsInFate()\n" +
+          "- Added GetNearestFate()\n" +
+          "- Added GetFateDuration()\n" +
+          "- Added GetFateHandInCount()\n" +
+          "- Added GetFateLocationX()\n" +
+          "- Added GetFateLocationY()\n" +
+          "- Added GetFateLocationZ()\n" +
+          "- Added GetFateProgress()\n\n" +
+          "- Added GetCurrentEorzeaTimestamp()\n" +
+          "- Added GetCurrentEorzeaSecond()\n" +
+          "- Added GetCurrentEorzeaMinute()\n" +
+          "- Added GetCurrentEorzeaHour()\n\n" +
+          "- Added GetDistanceToObject()\n");
+
+        DisplayChangelog(
+          "2024-01-26",
+          "- Added GetRecastTimeElapsed()\n" +
+          "- Added GetRealRecastTimeElapsed()\n" +
+          "- Added GetRecastTime()\n" +
+          "- Added GetRealRecastTime()\n" +
+          "- Added GetSpellCooldown()\n" +
+          "- Added GetRealSpellCooldown()\n" +
+          "- Added GetSpellCooldownInt()\n" +
+          "- Added GetActionStackCount()\n\n" +
+          "- Added GetStatusStackCount()\n" +
+          "- Added GetStatusTimeRemaining()\n" +
+          "- Added GetStatusSourceID()\n\n" +
+          "- Added GetFCGrandCompany()\n" +
+          "- Added GetFCOnlineMembers()\n" +
+          "- Added GetFCTotalMembers()\n");
+
+        DisplayChangelog(
+            "2024-01-25",
+            "- Added IsTargetCasting()\n" +
+            "- Added GetTargetActionID()\n" +
+            "- Added GetTargetUsedActionID()\n" +
+            "- Changed the Lua menu to be more dynamic with listing functions\n");
 
         DisplayChangelog(
             "2024-01-24",
@@ -911,120 +953,32 @@ For example:
 yield(""/ac Muscle memory <wait.3>"")
 yield(""/ac Precise touch <wait.2>"")
 yield(""/echo done!"")
-...and so on.
-
-Documentation for these functions are available at:
-https://github.com/daemitus/SomethingNeedDoing/blob/master/SomethingNeedDoing/Misc/ICommandInterface.cs
-
-===Available functions===
-bool IsCrafting()
-bool IsNotCrafting()
-bool IsCollectable()
-
-// lower: Get the condition in lowercase
-string GetCondition(bool lower = true)
-
-// condition: The condition name, as displayed in the UI
-// lower:     Get the condition in lowercase
-bool HasCondition(string condition, bool lower = true)
-
-int GetProgress()
-int GetMaxProgress()
-bool HasMaxProgress()
-
-int GetQuality()
-int GetMaxQuality()
-bool HasMaxQuality()
-
-int GetDurability()
-int GetMaxDurability()
-
-int GetCp()
-int GetMaxCp()
-
-int GetStep()
-int GetPercentHQ()
-bool NeedsRepair(float below = 0)
-
-// within: Return false if the next highest spiritbond is >= the within value.
-bool CanExtractMateria(float within = 100)
-
-bool HasStats(uint craftsmanship, uint control, uint cp)
-
-// name: status effect name
-bool HasStatus(string name)
-
-// id: status effect id(s).
-bool HasStatusId(uint id, ...)
-
-bool IsAddonVisible(string addonName)
-bool IsNodeVisible(string addonName, int node)
-bool IsAddonReady(string addonName)
-
-// Can fetch nested nodes
-string GetNodeText(string addonName, int nodeNumber, ...)
-
-string GetSelectStringText(int index)
-string GetSelectIconStringText(int index)
-
-bool GetCharacterCondition(int flagID, bool hasCondition = true)
-
-bool IsInZone(int zoneID)
-int GetZoneID()
-
-string GetCharacterName(bool includeWorld = false)
-
-int GetItemCount(int itemID, bool includeHQ = true)
-
-bool DeliverooIsTurnInRunning()
-bool ARAnyWaitingToBeProcessed(bool allCharacters = false)
-bool ARRetainersWaitingToBeProcessed(bool allCharacters = false)
-bool ARSubsWaitingToBeProcessed(bool allCharacters = false)
-
-uint GetProgressIncrease(uint actionID)
-uint GetQualityIncrease(uint actionID)
-
-void LeaveDuty()
-
-bool IsLocalPlayerNull()
-bool IsPlayerDead()
-bool IsPlayerCasting()
-bool IsMoving()
-
-uint GetGil()
-
-uint GetClassJobId()
-
-// if you pass an invalid name or party position it will return -1
-float GetPlayerRawXPos(string character = "")
-float GetPlayerRawYPos(string character = "")
-float GetPlayerRawZPos(string character = "")
-float GetDistanceToPoint(float x, float y, float z))
-
-float GetTargetRawXPos()
-float GetTargetRawYPos()
-float GetTargetRawZPos()
-float GetDistanceToTarget()
-
-float GetFlagXCoord()
-float GetFlagYCoord()
-
-int GetLevel(uint ExpArrayIndex = -1)
-int GetInventoryFreeSlotCount()
-
-string GetQuestNameByID(ushort id)
-bool IsQuestAccepted(ushort id)
-bool IsQuestComplete(ushort id)
-byte GetQuestSequence(ushort id)
-uint? GetQuestIDByName(string name)
-
-int GetNodeListCount(string addonName)
-
-string GetTargetName()
-byte GetActiveWeatherID()
-".Trim();
+...and so on.".Trim();
 
         ImGui.TextWrapped(text);
+        ImGui.Separator();
+
+        var commands = new List<(string, dynamic)>
+        {
+            (nameof(ActionCommands), ActionCommands.Instance),
+            (nameof(AddonCommands), AddonCommands.Instance),
+            (nameof(CharacterStateCommands), CharacterStateCommands.Instance),
+            (nameof(CraftingCommands), CraftingCommands.Instance),
+            (nameof(InventoryCommands), InventoryCommands.Instance),
+            (nameof(IpcCommands), IpcCommands.Instance),
+            (nameof(QuestCommands), QuestCommands.Instance),
+            (nameof(TargetStateCommands), TargetStateCommands.Instance),
+            (nameof(WorldStateCommands), WorldStateCommands.Instance)
+        };
+
+        foreach (var (commandName, commandInstance) in commands)
+        {
+            ImGui.Text($"{commandName}");
+            ImGui.PushStyleColor(ImGuiCol.Text, ShadedColor);
+            ImGui.TextWrapped(string.Join("\n", commandInstance.ListAllFunctions()));
+            ImGui.PopStyleColor();
+            ImGui.Separator();
+        }
 
         ImGui.PopFont();
     }
@@ -1033,7 +987,7 @@ byte GetActiveWeatherID()
     {
         ImGui.PushFont(UiBuilder.MonoFont);
 
-        ImGui.TextWrapped("Refer to https://github.com/daemitus/ClickLib/tree/master/ClickLib/Clicks for any details.");
+        ImGui.TextWrapped("Refer to https://github.com/Limiana/ClickLib/tree/master/ClickLib/Clicks for any details.");
         ImGui.Separator();
 
         foreach (var name in this.clickNames)
@@ -1116,7 +1070,7 @@ byte GetActiveWeatherID()
         ImGui.PopStyleColor();
 
         ImGui.Separator();
-        ImGui.TextWrapped("ClassJob");
+        ImGui.TextWrapped("Weather IDs");
         ImGui.PushStyleColor(ImGuiCol.Text, ShadedColor);
         foreach (var w in weatherSheet)
         {

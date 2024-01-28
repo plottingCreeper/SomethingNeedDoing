@@ -10,7 +10,7 @@ This plugin gives you control of a little Orc peon that does things for you.
 Specifically, crafting.
 It's a better way of storing and running all your different macros.
 
-![](https://github.com/daemitus/SomethingNeedDoing/raw/master/res/game.png)
+![](https://github.com/croizat/SomethingNeedDoing/raw/master/res/game.png)
 
 ## Features
 
@@ -29,4 +29,4 @@ Note: Unless otherwise provided by the game or another plugin, these do not work
 
 ## Lua functions
 
-[Go here.](https://github.com/daemitus/SomethingNeedDoing/blob/master/SomethingNeedDoing/Misc/ICommandInterface.cs)
+[Go here.](https://github.com/Jaksuhn/SomethingNeedDoing/tree/master/SomethingNeedDoing/Misc/Commands)

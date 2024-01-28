@@ -5,13 +5,29 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Client.UI.Info;
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace SomethingNeedDoing.Misc.Commands;
 
 public class CharacterStateCommands
 {
     internal static CharacterStateCommands Instance { get; } = new();
+
+    public List<string> ListAllFunctions()
+    {
+        MethodInfo[] methods = this.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        var list = new List<string>();
+        foreach (MethodInfo method in methods.Where(x => x.Name != nameof(ListAllFunctions) && x.DeclaringType != typeof(object)))
+        {
+            var parameterList = method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}{(p.IsOptional ? " = " + (p.DefaultValue ?? "null") : "")}");
+            list.Add($"{method.ReturnType.Name} {method.Name}({string.Join(", ", parameterList)})");
+        }
+        return list;
+    }
+
     public unsafe bool HasStatus(string statusName)
     {
         statusName = statusName.ToLowerInvariant();
@@ -34,6 +50,40 @@ public class CharacterStateCommands
         return statusID != default;
     }
 
+    private unsafe uint GetSpellActionId(uint actionId) => ActionManager.Instance()->GetAdjustedActionId(actionId);
+
+    public unsafe float GetRecastTimeElapsed(uint actionId) => ActionManager.Instance()->GetRecastTimeElapsed(ActionType.Action, GetSpellActionId(actionId));
+    public unsafe float GetRealRecastTimeElapsed(uint actionId) => ActionManager.Instance()->GetRecastTimeElapsed(ActionType.Action, actionId);
+
+    public unsafe float GetRecastTime(uint actionId) => ActionManager.Instance()->GetRecastTime(ActionType.Action, GetSpellActionId(actionId));
+    public unsafe float GetRealRecastTime(uint actionId) => ActionManager.Instance()->GetRecastTime(ActionType.Action, actionId);
+
+    public float GetSpellCooldown(uint actionId) => Math.Abs(GetRecastTime(GetSpellActionId(actionId)) - GetRecastTimeElapsed(GetSpellActionId(actionId)));
+    public float GetRealSpellCooldown(uint actionId) => Math.Abs(GetRealRecastTime(actionId) - GetRealRecastTimeElapsed(actionId));
+
+    public int GetSpellCooldownInt(uint actionId)
+    {
+        int cooldown = (int)Math.Ceiling(GetSpellCooldown(actionId) % GetRecastTime(actionId));
+        return Math.Max(0, cooldown);
+    }
+
+    public int GetActionStackCount(int maxStacks, uint actionId)
+    {
+        int cooldown = GetSpellCooldownInt(actionId);
+        float recastTime = GetRecastTime(actionId);
+
+        if (cooldown <= 0 || recastTime == 0)
+        {
+            return maxStacks;
+        }
+
+        return maxStacks - (int)Math.Ceiling(cooldown / (recastTime / maxStacks));
+    }
+
+    public uint GetStatusStackCount(uint statusID) => Svc.ClientState.LocalPlayer?.StatusList.FirstOrDefault(x => x.StatusId == statusID)?.StackCount ?? 0;
+    public float GetStatusTimeRemaining(uint statusID) => Svc.ClientState.LocalPlayer?.StatusList.FirstOrDefault(x => x.StatusId == statusID)?.RemainingTime ?? 0;
+    public uint GetStatusSourceID(uint statusID) => Svc.ClientState.LocalPlayer?.StatusList.FirstOrDefault(x => x.StatusId == statusID)?.SourceId ?? 0;
+
     public bool GetCharacterCondition(int flagID, bool hasCondition = true) => hasCondition ? Service.Condition[flagID] : !Service.Condition[flagID];
 
     public string GetCharacterName(bool includeWorld = false) =>
@@ -42,8 +92,6 @@ public class CharacterStateCommands
         : Service.ClientState.LocalPlayer.Name.ToString();
 
     public bool IsInZone(int zoneID) => Service.ClientState.TerritoryType == zoneID;
-
-    
 
     public bool IsLocalPlayerNull() => Service.ClientState.LocalPlayer == null;
 
@@ -115,4 +163,7 @@ public class CharacterStateCommands
     }
 
     public unsafe int GetFCRank() => ((InfoProxyFreeCompany*)Framework.Instance()->UIModule->GetInfoModule()->GetInfoProxyById(InfoProxyId.FreeCompany))->Rank;
+    public unsafe string GetFCGrandCompany() => ((InfoProxyFreeCompany*)Framework.Instance()->UIModule->GetInfoModule()->GetInfoProxyById(InfoProxyId.FreeCompany))->GrandCompany.ToString();
+    public unsafe int GetFCOnlineMembers() => ((InfoProxyFreeCompany*)Framework.Instance()->UIModule->GetInfoModule()->GetInfoProxyById(InfoProxyId.FreeCompany))->OnlineMembers;
+    public unsafe int GetFCTotalMembers() => ((InfoProxyFreeCompany*)Framework.Instance()->UIModule->GetInfoModule()->GetInfoProxyById(InfoProxyId.FreeCompany))->TotalMembers;
 }

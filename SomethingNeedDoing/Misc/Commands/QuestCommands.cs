@@ -5,6 +5,7 @@ using Lumina.Text;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace SomethingNeedDoing.Misc.Commands;
@@ -12,6 +13,19 @@ namespace SomethingNeedDoing.Misc.Commands;
 internal class QuestCommands
 {
     internal static QuestCommands Instance { get; } = new();
+
+    public List<string> ListAllFunctions()
+    {
+        MethodInfo[] methods = this.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        var list = new List<string>();
+        foreach (MethodInfo method in methods.Where(x => x.Name != nameof(ListAllFunctions) && x.DeclaringType != typeof(object)))
+        {
+            var parameterList = method.GetParameters().Select(p => $"{p.ParameterType.Name} {p.Name}{(p.IsOptional ? " = " + (p.DefaultValue ?? "null") : "")}");
+            list.Add($"{method.ReturnType.Name} {method.Name}({string.Join(", ", parameterList)})");
+        }
+        return list;
+    }
+
     private static readonly Dictionary<uint, Quest>? QuestSheet = Svc.Data?.GetExcelSheet<Quest>()?.Where(x => x.Id.RawString.Length > 0).ToDictionary(i => i.RowId, i => i);
     public static string GetQuestNameByID(ushort id)
     {
