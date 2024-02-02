@@ -324,6 +324,12 @@ internal class MacroWindow : Window
             this.RunMacro(node);
 
         ImGui.SameLine();
+        if (ImGuiEx.IconButton(FontAwesomeIcon.TimesCircle, "Close"))
+        {
+            this.activeMacroNode = null;
+        }
+
+        ImGui.SameLine();
         if (ImGuiEx.IconButton(FontAwesomeIcon.FileImport, "Import from clipboard"))
         {
             string text;
@@ -349,12 +355,6 @@ internal class MacroWindow : Window
 
             node.Contents = text;
             Service.Configuration.Save();
-        }
-
-        ImGui.SameLine();
-        if (ImGuiEx.IconButton(FontAwesomeIcon.TimesCircle, "Close"))
-        {
-            this.activeMacroNode = null;
         }
 
         var luaEnabled = node.IsLua;
